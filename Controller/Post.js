@@ -1,10 +1,12 @@
 const Post = require("../Models/Post");
+const apiError = require("../Middleware/apiError");
 
 // Creat Post
 const createPost = async (req, res) => {
   const { title, content, image } = req.body;
   if (!title || !content) {
-    return res.status(400).json({ message: " Pls fill in all fields" });
+    next(apiError.badRequest("This field must be fill"));
+    return;
   }
 
   // add new post to databses
@@ -12,7 +14,8 @@ const createPost = async (req, res) => {
     const newPost = await Post.create({ title, content, image });
     res.status(200).json(newPost);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
@@ -22,7 +25,8 @@ const getPosts = async (req, res) => {
     const posts = await Post.find({ user: req.userId }).sort({ updatedAt: -1 });
     res.status(200).json(posts);
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
@@ -30,13 +34,19 @@ const getPosts = async (req, res) => {
 const getPost = async (req, res) => {
   const id = req.params.id;
   if (!id) {
-    return res.status(404).json({ error: "This post don't exist" });
+    next(apiError.badRequest("Can't find this post"));
+    return;
   }
   try {
     const post = await Post.findById(id);
+    if (!post) {
+      next(apiError.badRequest("This post don't exist"));
+      return;
+    }
     res.status(200).json(post);
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
@@ -49,9 +59,14 @@ const updatePost = async (req, res) => {
       { _id: id, user: req.user.id },
       { ...req.body }
     );
+    if (!updatePost) {
+      next(apiError.badRequest("This post don't exist"));
+      return;
+    }
     res.status(200).json(updatePost);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
@@ -64,9 +79,14 @@ const deletePost = async (req, res) => {
       _id: id,
       user: req.user.id,
     });
+    if (!deletePost) {
+      next(apiError.badRequest("This post don't exist"));
+      return;
+    }
     res.status(200).json(deletePost);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 

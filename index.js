@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const userRouter = require("./Routers/User");
 const postRouter = require("./Routers/Post");
 const cors = require("cors");
-
+const errorHandler = require("./Middleware/errorHandler");
 const app = express();
 
 // middlewares
@@ -31,3 +31,4 @@ mongoose
 // routes
 app.use("/api/user", userRouter);
 app.use("/api/post", postRouter);
+app.use(errorHandler);

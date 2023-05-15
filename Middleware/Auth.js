@@ -1,17 +1,18 @@
 const jwt = require("jsonwebtoken");
+const apiError = require("./apiError");
 
 const protect = async (req, res, next) => {
   const bearer = req.headers.authorization;
 
   if (!bearer) {
-    res.status(401).json({ message: "not bearer" });
+    next(apiError.unAuthorized("dont have token"));
     return;
   }
 
   const [, token] = bearer.split(" ");
 
   if (!token) {
-    res.status(401).json({ message: "not valid token" });
+    next(apiError.unAuthorized("not valid token"));
     return;
   }
   try {
@@ -19,8 +20,8 @@ const protect = async (req, res, next) => {
     req.user = userDecoded;
     next();
   } catch (error) {
-    console.error(error);
-    res.status(401).json({ message: "Request is not authorized" });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 

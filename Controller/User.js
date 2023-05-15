@@ -1,17 +1,20 @@
 const User = require("../Models/User");
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
+const apiError = require("../Middleware/apiError");
 
-const userRegister = async (req, res) => {
+const userRegister = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json({ error: "All fields must be filled" });
+    next(apiError.badRequest("All field must be fill"));
+    return;
   }
 
   try {
     const userExist = await User.findOne({ username });
     if (userExist) {
-      throw Error("This name has been taken");
+      next(apiError.unAuthorized("username has been taken"));
+      return;
     }
 
     const hashedPassword = await argon2.hash(password);
@@ -24,24 +27,28 @@ const userRegister = async (req, res) => {
     );
     res.status(200).json({ username, token });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
 const userLogin = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json({ error: "All fields must be filled" });
+    next(apiError.badRequest("All field must be fill"));
+    return;
   }
   try {
     const user = await User.findOne({ username });
     if (!user) {
-      throw Error("Incorrect username or password");
+      next(apiError.unAuthorized("Incorrect username or password"));
+      return;
     }
 
     const validPassword = await argon2.verify(user.password, password);
     if (!validPassword) {
-      throw Error("Incorrect username or password");
+      next(apiError.unAuthorized("Incorrect username or password"));
+      return;
     }
 
     const token = jwt.sign(
@@ -50,7 +57,8 @@ const userLogin = async (req, res) => {
     );
     res.status(200).json({ username, token });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(apiError.internalSever(`${error.message}`));
+    return;
   }
 };
 
