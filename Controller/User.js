@@ -32,7 +32,7 @@ const userRegister = async (req, res, next) => {
   }
 };
 
-const userLogin = async (req, res) => {
+const userLogin = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
     next(apiError.badRequest("All field must be fill"));

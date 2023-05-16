@@ -2,7 +2,7 @@ const Post = require("../Models/Post");
 const apiError = require("../Middleware/apiError");
 
 // Creat Post
-const createPost = async (req, res) => {
+const createPost = async (req, res, next) => {
   const { title, content, image } = req.body;
   if (!title || !content) {
     next(apiError.badRequest("This field must be fill"));
@@ -20,7 +20,7 @@ const createPost = async (req, res) => {
 };
 
 // Get all Posts
-const getPosts = async (req, res) => {
+const getPosts = async (req, res, next) => {
   try {
     const posts = await Post.find({ user: req.userId }).sort({ updatedAt: -1 });
     res.status(200).json(posts);
@@ -31,7 +31,7 @@ const getPosts = async (req, res) => {
 };
 
 // Get a single Post
-const getPost = async (req, res) => {
+const getPost = async (req, res, next) => {
   const id = req.params.id;
   if (!id) {
     next(apiError.badRequest("Can't find this post"));
@@ -51,7 +51,7 @@ const getPost = async (req, res) => {
 };
 
 // Update a Post
-const updatePost = async (req, res) => {
+const updatePost = async (req, res, next) => {
   const id = req.params.id;
 
   try {
@@ -71,7 +71,7 @@ const updatePost = async (req, res) => {
 };
 
 // Delete Post
-const deletePost = async (req, res) => {
+const deletePost = async (req, res, next) => {
   const id = req.params.id;
 
   try {
