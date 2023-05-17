@@ -11,6 +11,10 @@ class apiError {
   static badRequest(msg) {
     return new apiError(400, msg);
   }
+
+  static unAuthorized(msg) {
+    return new apiError(401, msg);
+  }
 }
 
 module.exports = apiError;
