@@ -25,7 +25,7 @@ const userRegister = async (req, res, next) => {
       { userId: newUser._id },
       process.env.ACCESS_TOKEN_SECRET
     );
-    res.status(200).json({ username, token });
+    res.status(200).json({ username, token, userId: newUser._id });
   } catch (error) {
     next(apiError.internalSever(`${error.message}`));
     return;
@@ -55,7 +55,7 @@ const userLogin = async (req, res, next) => {
       { userId: user._id },
       process.env.ACCESS_TOKEN_SECRET
     );
-    res.status(200).json({ username, token });
+    res.status(200).json({ username, token, userId: user._id });
   } catch (error) {
     next(apiError.internalSever(`${error.message}`));
     return;

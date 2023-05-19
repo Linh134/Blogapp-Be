@@ -1,4 +1,5 @@
 const Post = require("../Models/Post");
+const User = require("../Models/User");
 const apiError = require("../Middleware/apiError");
 
 // Creat Post
@@ -11,7 +12,10 @@ const createPost = async (req, res, next) => {
 
   // add new post to databses
   try {
-    const newPost = await Post.create({ title, content, image });
+    const authorId = req.user.userId;
+    const authorName = await User.findById(authorId);
+    const author = { id: authorId, username: authorName.username };
+    const newPost = await Post.create({ title, content, image, author });
     res.status(200).json(newPost);
   } catch (error) {
     next(apiError.internalSever(`${error.message}`));
@@ -43,6 +47,7 @@ const getPost = async (req, res, next) => {
       next(apiError.badRequest("This post don't exist"));
       return;
     }
+
     res.status(200).json(post);
   } catch (error) {
     next(apiError.internalSever(`${error.message}`));

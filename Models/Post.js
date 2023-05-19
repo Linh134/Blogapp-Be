@@ -14,9 +14,9 @@ const postSchema = new Schema(
     image: {
       type: String,
     },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "users",
+    author: {
+      id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      username: String,
     },
   },
   { timestamps: true }
